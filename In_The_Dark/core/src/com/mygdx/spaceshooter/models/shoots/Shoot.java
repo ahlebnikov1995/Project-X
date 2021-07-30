@@ -1,11 +1,13 @@
 package com.mygdx.spaceshooter.models.shoots;
 
+import com.mygdx.spaceshooter.animations.Animation;
 import com.mygdx.spaceshooter.screens.GameScreen;
 import com.mygdx.spaceshooter.models.GameObject;
 
 public class Shoot extends GameObject {
     private float dvx;
     private float dvy;
+    private Animation anim;
 
    public Shoot(GameObject Player, float dx, float dy, float grassVX, float grassVY, float z, float width, float height){
        super(Player.getX() + Player.getWidth()/2f - width/2f,
@@ -196,5 +198,13 @@ public class Shoot extends GameObject {
 
     public void setDvy(float dvy) {
         this.dvy = dvy;
+    }
+
+    public Animation getAnim() {
+        return anim;
+    }
+
+    public void setAnim(Animation anim) {
+        this.anim = anim;
     }
 }

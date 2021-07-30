@@ -21,8 +21,8 @@ public class Boss1 extends Enemy {
     boolean inAttack = false;
     boolean inShoot = false;
 
-    public Boss1(  Array<MyTree> trees,Player player,Animation animAttack, Animation animAttack2, Animation animMove,Animation animMove2,Animation animShoot, Animation animShoot2) {
-        super(1000,
+    public Boss1(Integer hp, Array<MyTree> trees,Player player,Animation animAttack, Animation animAttack2, Animation animMove,Animation animMove2,Animation animShoot, Animation animShoot2) {
+        super(hp,
                 GameScreen.SCR_WIDTH/20f,
                 GameScreen.SCR_WIDTH/10f,
                 trees);

@@ -622,7 +622,7 @@ public class Lvl1Screen implements Screen {
             ninjas.clear();
             enemyArchers.clear();
             enemyWarriors.clear();
-            boss = new Boss1(trees,player,animationBossAttack,animationBossAttack2,animationBossMove,animationBossMove2,animationBossShoot,animationBossShoot2);
+            boss = new Boss1(1000,trees,player,animationBossAttack,animationBossAttack2,animationBossMove,animationBossMove2,animationBossShoot,animationBossShoot2);
             bossInGame = true;
         }
         if (boss != null && (!boss.overlaps(player) || (grassArray.get(0).getVx() != 0 || grassArray.get(0).getVy() != 0))) {

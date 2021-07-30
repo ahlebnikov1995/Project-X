@@ -23,13 +23,17 @@ import com.mygdx.spaceshooter.gameui.ButtonBlink;
 import com.mygdx.spaceshooter.gameui.Joystick;
 import com.mygdx.spaceshooter.models.MyTree;
 import com.mygdx.spaceshooter.models.Player;
+import com.mygdx.spaceshooter.models.enemys.Boss1;
 import com.mygdx.spaceshooter.models.enemys.EnemyArcher;
 import com.mygdx.spaceshooter.models.enemys.EnemyWarrior;
 
 import com.mygdx.spaceshooter.models.enemys.Ninja;
+import com.mygdx.spaceshooter.models.enemys.Samurai;
 import com.mygdx.spaceshooter.models.shoots.EnemyShoot;
 import com.mygdx.spaceshooter.models.shoots.Fireball;
 import com.mygdx.spaceshooter.models.Grass;
+import com.mygdx.spaceshooter.models.shoots.Shoot;
+import com.mygdx.spaceshooter.models.shoots.Tornado;
 
 import java.util.Comparator;
 import java.util.logging.Logger;
@@ -44,6 +48,8 @@ public class GameScreen implements Screen {
 	long enemyArcherSpawnInterval = 2000;
 	long lastenemyNinjaSpawnTime;
 	long enemyNinjaSpawnInteval = 3000;
+	long lastEnemySamuraiSpawnTime;
+	long enemySamuraiSpawnInterval = 3500;
 	long lastTreeSpawn;
 	long treeSpawnInterval = 2000;
 	//long lastEnemyShootTime;
@@ -66,6 +72,12 @@ public class GameScreen implements Screen {
 	Stage stage;
 	//Viewport viewport;
 
+	Texture imgAnimSamAttack;
+	Texture imgAnimSamAttack2;
+	Texture imgAnimSamShoot;
+	Texture imgAnimSamShoot2;
+	Texture imgAnimSamRun;
+	Texture imgAnimSamRun2;
 	Texture imgNinja;
 	Texture imgGrass;
 	Texture imgTree;
@@ -99,6 +111,8 @@ public class GameScreen implements Screen {
 	Texture bg1;
 	Texture bg2;
 	Texture bg3;
+	Texture imgTornado;
+
 	//TextureRegion trShip;
 	TextureRegion trFireball;
 	TextureRegion trArrow;
@@ -121,6 +135,13 @@ public class GameScreen implements Screen {
 	TextureRegion trAnimAttackN;
 	TextureRegion trAnimAttackN2;
 	TextureRegion trAnimShield;
+	TextureRegion trAnimSamAttack;
+	TextureRegion trAnimSamAttack2;
+	TextureRegion trAnimSamShoot;
+	TextureRegion trAnimSamShoot2;
+	TextureRegion trAnimSamRun;
+	TextureRegion trAnimSamRun2;
+	TextureRegion trTornado;
 
 
 	Animation animationAttack;
@@ -149,6 +170,8 @@ public class GameScreen implements Screen {
 	Array<EnemyWarrior> enemyWarriors = new Array<>();
 	Array<EnemyArcher> enemyArchers = new Array<>();
 	Array<Ninja> ninjas = new Array<>();
+	Array<Samurai> samurais = new Array<>();
+	Array<Shoot> tornadoes = new Array<>();
 	Array<EnemyShoot> enemyShoots = new Array<>();
 	Array<Fireball> shoots = new Array<>();
 	int score;
@@ -156,17 +179,18 @@ public class GameScreen implements Screen {
 	float dx;
 	float dy;
 
-	int dmgA;
+	/*int dmgA;
 	int dmgW;
 	int dmgN;
 	boolean isDmgN;
 	boolean isDmgW;
-	boolean isDmgA;
+	boolean isDmgA;*/
 	boolean isLevelUP;
 	int hpP = (int)((Progress.lvlPlayer * 10 + (Progress.lvlPlayer * 10 * 0.1f * Progress.Talent.encHP))*(1+Progress.Talent.doubleHP_DMG));
 	int hpW = (int)(10*(0.9f*Progress.lvlPlayer));
 	int hpN = (int)(5*(0.9f*Progress.lvlPlayer));
 	int hpA = (int)(5*(0.9f*Progress.lvlPlayer));
+	int hpS = (int)(5*(0.9f*Progress.lvlPlayer));
 
 	int lvlOnStartPlay;
 	int curLvl;
@@ -224,6 +248,13 @@ public class GameScreen implements Screen {
 		trAnimAttackN = new TextureRegion(imgAnimAttackN);
 		trAnimAttackN2 = new TextureRegion(imgAnimAttackN2);
 		trAnimShield = new TextureRegion(imgAnimShield);
+		trAnimSamAttack = new TextureRegion(imgAnimSamAttack);
+		trAnimSamAttack2 = new TextureRegion(imgAnimSamAttack2);
+		trAnimSamShoot = new TextureRegion(imgAnimSamShoot);
+		trAnimSamShoot2 = new TextureRegion(imgAnimSamShoot2);
+		trAnimSamRun = new TextureRegion(imgAnimSamRun);
+		trAnimSamRun2 = new TextureRegion(imgAnimSamRun2);
+		trTornado = new TextureRegion(imgTornado);
 
 
 
@@ -277,6 +308,7 @@ public class GameScreen implements Screen {
 				hpW = (int) (10 * (0.9f * Progress.lvlPlayer));
 				hpN = (int) (5 * (0.9f * Progress.lvlPlayer));
 				hpA = (int) (5 * (0.9f * Progress.lvlPlayer));
+				hpS = (int) (5 * (0.9f * Progress.lvlPlayer));
 				Progress.talentPoints = Progress.talentPoints + 1;
 				for (int i = 0; i < enemyWarriors.size; i++) {
 					enemyWarriors.get(i).setHp((int) (10 * (0.9f * Progress.lvlPlayer)));
@@ -289,6 +321,11 @@ public class GameScreen implements Screen {
 				for (int i = 0; i < ninjas.size; i++) {
 					ninjas.get(i).setHp((int) (5 * (0.9f * Progress.lvlPlayer)));
 					ninjas.get(i).setDmg((int) (Progress.lvlPlayer * 10 / 5));
+				}
+				for (int i = 0; i < samurais.size; i++) {
+					samurais.get(i).setHp((int) (5 * (0.9f * Progress.lvlPlayer)));
+					samurais.get(i).setDmg((int) (Progress.lvlPlayer * 10 / 5));
+					samurais.get(i).setDmgShoot((int) (Progress.lvlPlayer * 10 / 5));
 				}
 
 
@@ -378,6 +415,19 @@ public class GameScreen implements Screen {
 				}
 			}
 
+			for (int j = 0; j < samurais.size ; j++) {
+
+				if (shoots.get(i).overlaps(samurais.get(j)) && !shoots.get(i).getCausedDamage()) {
+					shoots.get(i).setCausedDamage(true);
+					shoots.get(i).setDvx(0);
+					shoots.get(i).setDvy(0);
+					shoots.get(i).setLastCausedDamage(TimeUtils.millis());
+					samurais.get(j).setHp(samurais.get(j).getHp() - player.getDmg());
+				}
+			}
+
+
+
 			if(TimeUtils.millis() - shoots.get(i).getLastCausedDamage() > 500 && shoots.get(i).getCausedDamage()){
 				shoots.get(i).setAlive(false);
 			}
@@ -385,11 +435,13 @@ public class GameScreen implements Screen {
 			if (!shoots.get(i).isAlive()) shoots.removeIndex(i);
 		}
 
-		if(TimeUtils.millis() - lastenemyNinjaSpawnTime > enemyNinjaSpawnInteval && ninjas.size < 3 && Progress.is1lvlWin && Progress.is2lvlWin) spawnNinja();
+		if(TimeUtils.millis() - lastEnemySamuraiSpawnTime > enemySamuraiSpawnInterval && samurais.size < 2 && Progress.is2lvlWin) spawnSamurai();
+
+		if(TimeUtils.millis() - lastenemyNinjaSpawnTime > enemyNinjaSpawnInteval && ninjas.size < 3 && Progress.is1lvlWin) spawnNinja();
 
 		if (TimeUtils.millis() - lastEnemyWarriorSpawnTime > enemyWarriorSpawnInterval && enemyWarriors.size < 10) spawnEnemyWarrior();
 
-		if (TimeUtils.millis() - lastEnemyArcherSpawnTime > enemyArcherSpawnInterval && enemyArchers.size < 10 && Progress.is1lvlWin) spawnEnemyArcher();
+		if (TimeUtils.millis() - lastEnemyArcherSpawnTime > enemyArcherSpawnInterval && enemyArchers.size < 10 ) spawnEnemyArcher();
 
 		if (TimeUtils.millis() - lastTreeSpawn > treeSpawnInterval && trees.size < 15) spawnMyTree();
 
@@ -468,6 +520,51 @@ public class GameScreen implements Screen {
 				return (int)(t1.getY() - myTree.getY());
 			}
 		});
+
+		for (int i = 0; i < samurais.size; i++) {
+
+			if (!samurais.get(i).overlaps(player) || (grassArray.get(0).getVx()!=0 || grassArray.get(0).getVy()!=0)) samurais.get(i).move(grassArray.get(0).getVx(), grassArray.get(0).getVy(), trees);
+			if (TimeUtils.millis() - samurais.get(i).getLastDamageTime() > damageInterval && player.overlaps(samurais.get(i))) {
+				if(player.isInShield()){
+					player.setK(player.getK()+1);
+				}else {
+					player.setHp(player.getHp() - samurais.get(i).getDmg());
+				}
+				samurais.get(i).setLastDamageTime(TimeUtils.millis());
+				samurais.get(i).setInAttack(true);
+				samurais.get(i).getAnimAttack().setFrame(0);
+				samurais.get(i).getAnimAttack().setCurrentFrameTime(0);
+				samurais.get(i).getAnimAttack2().setFrame(0);
+				samurais.get(i).getAnimAttack2().setCurrentFrameTime(0);
+			}
+			if (samurais.get(i).getHp() <= 0) {
+				samurais.get(i).setAlive(false);
+
+				Progress.exp = Progress.exp + samurais.get(i).getExp();
+
+
+			}
+
+			//спавн выстрелов врага;
+			if((TimeUtils.millis() - samurais.get(i).getLastShootTime() > 6000) &&
+					(samurais.get(i).getX() > 0 - samurais.get(i).getWidth() && samurais.get(i).getX() < GameScreen.SCR_WIDTH && samurais.get(i).getY() > 0 - samurais.get(i).getHeight() && samurais.get(i).getY() < GameScreen.SCR_HEIGHT) &&
+					!samurais.get(i).isInAttack()) {
+				samurais.get(i).setInShoot(true);
+				samurais.get(i).setLastShootTime(TimeUtils.millis());
+				samurais.get(i).getAnimShoot().setCurrentFrameTime(0);
+				samurais.get(i).getAnimShoot().setFrame(0);
+				samurais.get(i).getAnimShoot2().setCurrentFrameTime(0);
+				samurais.get(i).getAnimShoot2().setFrame(0);
+
+
+			}
+			if (samurais.get(i) != null && TimeUtils.millis() - samurais.get(i).getLastShootTime() > 500 && samurais.get(i).isInShoot()) {
+				samurais.get(i).setInShoot(false);
+				spawnSamuraiShoot(samurais.get(i), player.getX() - samurais.get(i).getX(), player.getY() - samurais.get(i).getY());
+			}
+
+			if (!samurais.get(i).isAlive()) samurais.removeIndex(i);
+		}
 
 		for (int i = 0; i < ninjas.size; i++) {
 
@@ -563,6 +660,27 @@ public class GameScreen implements Screen {
 
 			if(!enemyShoots.get(i).isAlive() || !player.isAlive()) enemyShoots.removeIndex(i);
 		}
+
+		for (int i = 0; i < tornadoes.size; i++) {
+			if (tornadoes.get(i).overlaps(player)){
+				if(player.isInShield()){
+					player.setK(player.getK()+1);
+					tornadoes.get(i).setAlive(false);
+				}else {
+					player.setHp(player.getHp() - samurais.get(0).getDmg());
+					tornadoes.get(i).setAlive(false);
+				}
+			}
+			for (int j = 0; j < trees.size; j++) {
+				if(tornadoes.get(i).overlaps(trees.get(j))) tornadoes.get(i).setAlive(false);
+			}
+			tornadoes.get(i).setVx(tornadoes.get(i).getDvx() + grassArray.get(1).getVx());
+			tornadoes.get(i).setVy(tornadoes.get(i).getDvy() + grassArray.get(1).getVy());
+			tornadoes.get(i).move();
+
+			if(!tornadoes.get(i).isAlive() || !player.isAlive()) tornadoes.removeIndex(i);
+		}
+
 
 		if(player.getHp() <= 0 && player.isAlive()) gameOver();
 
@@ -712,6 +830,37 @@ public class GameScreen implements Screen {
 
 	}
 
+
+	void spawnSamuraiShoot(Samurai samurai, float dx, float dy){
+		Shoot newTornado = new Shoot(samurai, dx,dy,grassArray.get(0).getVx(),grassArray.get(0).getVy(),GameScreen.SCR_WIDTH/150f, GameScreen.SCR_WIDTH/20f, GameScreen.SCR_WIDTH/10f);
+			newTornado.setAnim(new Animation(trTornado,5,1));
+			newTornado.setRotation(0);
+			tornadoes.add(newTornado);
+
+
+
+	}
+
+	void spawnSamurai(){
+		if(isgame){
+			samurais.add(new Samurai(trees,
+					player,
+					new Animation(trAnimSamAttack,4,0.5f),
+					new Animation(trAnimSamAttack2, 4, 0.5f),
+					new Animation(trAnimSamRun,8,1),
+					new Animation(trAnimSamRun2,8,1),
+					new Animation(trAnimSamShoot,7,0.5f),
+					new Animation(trAnimSamShoot2,7,0.5f)
+					));
+			lastEnemySamuraiSpawnTime = TimeUtils.millis();
+			/*if(!isDmgN){
+				dmgN = ninjas.get(0).getDmg();
+				isDmgN = true;
+			}*/
+
+		}
+	}
+
 	void spawnNinja(){
 		if(isgame){
 			ninjas.add(new Ninja(trees,
@@ -721,10 +870,10 @@ public class GameScreen implements Screen {
 					new Animation(trAnimMoveN,6,1),
 					new Animation(trAnimMoveN2,6,1)));
 			lastenemyNinjaSpawnTime = TimeUtils.millis();
-			if(!isDmgN){
+			/*if(!isDmgN){
 				dmgN = ninjas.get(0).getDmg();
 				isDmgN = true;
-			}
+			}*/
 
 		}
 	}
@@ -733,20 +882,20 @@ public class GameScreen implements Screen {
 		if (isgame) {
 			enemyWarriors.add(new EnemyWarrior(new Animation(trAnimSlime,6,0.5f),trees));
 			lastEnemyWarriorSpawnTime = TimeUtils.millis();
-			if(!isDmgW){
+			/*if(!isDmgW){
 				dmgW = enemyWarriors.get(0).getDmg();
 				isDmgW = true;
-			}
+			}*/
 		}
 	}
 	void spawnEnemyArcher() {
 		if (isgame) {
 			enemyArchers.add(new EnemyArcher(new Animation(trAnimArcher1,6,0.5f), new Animation(trAnimArcher2,6,0.5f),trees));
 			lastEnemyArcherSpawnTime = TimeUtils.millis();
-			if(!isDmgA){
+			/*if(!isDmgA){
 				dmgA = enemyArchers.get(0).getDmg();
 				isDmgA = true;
-			}
+			}*/
 		}
 	}
 	void spawnMyTree(){
@@ -899,8 +1048,15 @@ public class GameScreen implements Screen {
 	imgAnimAttack = new Texture("AttackAnimation.png");
 	imgAnimAttack2 = new Texture("AttackAnimation2.png");
 	imgAnimSlime = new Texture("SlimeAnimation.png");
+	if(Progress.is2lvlWin){
+		imgAnimSlime = new Texture("Slime2Animation.png");
+	}
 	imgAnimArcher1 = new Texture("ArcherAnimation1.png");
 	imgAnimArcher2 = new Texture("ArcherAnimation2.png");
+	if(Progress.is2lvlWin){
+		imgAnimArcher1 = new Texture("ArcherAnimation12.png");
+		imgAnimArcher2 = new Texture("ArcherAnimation22.png");
+	}
 	imgAnimBlink = new Texture("AnimationBlink.png");
 	imgAnimBlink2 = new Texture("AnimationBlink2.png");
 	imgAnimDeath = new Texture("AnimationDeath.png");
@@ -914,10 +1070,17 @@ public class GameScreen implements Screen {
 	imgAnimMoveN2 = new Texture("AnimationMoveNinja2.png");
 	imgAnimAttackN = new Texture("AnimationAttackNinja.png");
 	imgAnimAttackN2 = new Texture("AnimationAttackNinja2.png");
+	imgAnimSamAttack = new Texture("samuraiAttackAnim.png");
+	imgAnimSamAttack2 = new Texture("samuraiAttackAnim2.png");
+	imgAnimSamShoot = new Texture("samuraiShootAnim.png");
+	imgAnimSamShoot2 = new Texture("samuraiShootAnim2.png");
+	imgAnimSamRun = new Texture("samuraiRunAnim.png");
+	imgAnimSamRun2 = new Texture("samuraiRunAnim2.png");
 	bg1 = new Texture("BG1.png");
 	bg2 = new Texture("BG2.png");
 	bg3 = new Texture("BG3.png");
 	imgAnimShield = new Texture("AnimShield.png");
+	imgTornado = new Texture("Tornado.png");
 	}
 
 	@Override
@@ -955,6 +1118,10 @@ public class GameScreen implements Screen {
 			}
 		}
 
+		for (int i = 0; i < samurais.size ; i++) {
+			font.draw(batch,samurais.get(i).getHp() + "/" + hpS, samurais.get(i).getX(),samurais.get(i).getY() + samurais.get(i).getHeight() + 10);
+		}
+
 
 		for (int i = 0; i < shoots.size ; i++) {
 			if(shoots.get(i).getLastCausedDamage() + 500 - TimeUtils.millis() > 0){
@@ -962,6 +1129,7 @@ public class GameScreen implements Screen {
 			}
 
 		}
+		
 
 
 
@@ -1018,6 +1186,10 @@ public class GameScreen implements Screen {
 		for (int i = 0; i < enemyShoots.size; i++) {
 			batch.draw(trArrow, enemyShoots.get(i).getX(), enemyShoots.get(i).getY(), enemyShoots.get(i).getWidth() / 2, enemyShoots.get(i).getHeight() / 2, enemyShoots.get(i).getWidth(), enemyShoots.get(i).getHeight(), 1, 1, enemyShoots.get(i).getRotation());
 		}
+
+		for (int i = 0; i < tornadoes.size; i++) {
+			batch.draw(tornadoes.get(i).getAnim().getFrame(), tornadoes.get(i).getX(),tornadoes.get(i).getY(),tornadoes.get(i).getWidth(),tornadoes.get(i).getHeight());
+		}
 		for (int i = 0; i < ninjas.size; i++) {
 
 				if(ninjas.get(i).isInAttack()){
@@ -1034,6 +1206,30 @@ public class GameScreen implements Screen {
 					}
 				}
 			}
+
+		for (int i = 0; i < samurais.size; i++) {
+			if (samurais.get(i).isInAttack()) {
+				if (player.getX() >= samurais.get(i).getX()) {
+					batch.draw(samurais.get(i).getAnimAttack().getFrame(), samurais.get(i).getX() - samurais.get(i).getWidth(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
+				} else {
+					batch.draw(samurais.get(i).getAnimAttack2().getFrame(), samurais.get(i).getX() - samurais.get(i).getWidth(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
+				}
+			} else {
+				if (samurais.get(i).isInShoot()) {
+					if (player.getX() >= samurais.get(i).getX()) {
+						batch.draw(samurais.get(i).getAnimShoot().getFrame(), samurais.get(i).getX(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
+					} else {
+						batch.draw(samurais.get(i).getAnimShoot2().getFrame(), samurais.get(i).getX(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
+					}
+				} else {
+					if (player.getX() >= samurais.get(i).getX()) {
+						batch.draw(samurais.get(i).getAnimMove().getFrame(), samurais.get(i).getX(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
+					} else {
+						batch.draw(samurais.get(i).getAnimMove2().getFrame(), samurais.get(i).getX(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
+					}
+				}
+			}
+		}
 
 
 		for (int i = 0; i < enemyWarriors.size; i++) {
@@ -1072,6 +1268,20 @@ public class GameScreen implements Screen {
 		animationMove.update(delta);
 		animationMove2.update(delta);
 		animationShield.update(delta);
+
+		for (int i = 0; i < tornadoes.size; i++) {
+			tornadoes.get(i).getAnim().update(delta);
+		}
+
+		for (int i = 0; i < samurais.size; i++) {
+			samurais.get(i).getAnimMove().update(delta);
+			samurais.get(i).getAnimMove2().update(delta);
+			samurais.get(i).getAnimAttack().update(delta);
+			samurais.get(i).getAnimAttack2().update(delta);
+			samurais.get(i).getAnimShoot().update(delta);
+			samurais.get(i).getAnimShoot2().update(delta);
+		}
+
 
 		for (int i = 0; i < ninjas.size; i++) {
 			ninjas.get(i).getAnimMove().update(delta);
@@ -1178,6 +1388,13 @@ public class GameScreen implements Screen {
 		bg2.dispose();
 		bg3.dispose();
 		imgAnimShield.dispose();
+		imgTornado.dispose();
+		imgAnimSamAttack.dispose();
+		imgAnimSamAttack2.dispose();
+		imgAnimSamRun.dispose();
+		imgAnimSamRun2.dispose();
+		imgAnimSamShoot.dispose();
+		imgAnimSamShoot2.dispose();
 
 		
 	}
