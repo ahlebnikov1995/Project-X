@@ -1210,7 +1210,7 @@ public class GameScreen implements Screen {
 		for (int i = 0; i < samurais.size; i++) {
 			if (samurais.get(i).isInAttack()) {
 				if (player.getX() >= samurais.get(i).getX()) {
-					batch.draw(samurais.get(i).getAnimAttack().getFrame(), samurais.get(i).getX() - samurais.get(i).getWidth(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
+					batch.draw(samurais.get(i).getAnimAttack().getFrame(), samurais.get(i).getX(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
 				} else {
 					batch.draw(samurais.get(i).getAnimAttack2().getFrame(), samurais.get(i).getX() - samurais.get(i).getWidth(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
 				}
@@ -1219,13 +1219,13 @@ public class GameScreen implements Screen {
 					if (player.getX() >= samurais.get(i).getX()) {
 						batch.draw(samurais.get(i).getAnimShoot().getFrame(), samurais.get(i).getX(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
 					} else {
-						batch.draw(samurais.get(i).getAnimShoot2().getFrame(), samurais.get(i).getX(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
+						batch.draw(samurais.get(i).getAnimShoot2().getFrame(), samurais.get(i).getX() - samurais.get(i).getWidth(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
 					}
 				} else {
 					if (player.getX() >= samurais.get(i).getX()) {
 						batch.draw(samurais.get(i).getAnimMove().getFrame(), samurais.get(i).getX(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
 					} else {
-						batch.draw(samurais.get(i).getAnimMove2().getFrame(), samurais.get(i).getX(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
+						batch.draw(samurais.get(i).getAnimMove2().getFrame(), samurais.get(i).getX() - samurais.get(i).getWidth(), samurais.get(i).getY(), samurais.get(i).getWidth()*2, samurais.get(i).getHeight());
 					}
 				}
 			}
@@ -1280,8 +1280,11 @@ public class GameScreen implements Screen {
 			samurais.get(i).getAnimAttack2().update(delta);
 			samurais.get(i).getAnimShoot().update(delta);
 			samurais.get(i).getAnimShoot2().update(delta);
-		}
 
+			if (TimeUtils.millis() - samurais.get(i).getLastDamageTime() > damageInterval) {
+				samurais.get(i).setInAttack(false);
+			}
+		}
 
 		for (int i = 0; i < ninjas.size; i++) {
 			ninjas.get(i).getAnimMove().update(delta);
